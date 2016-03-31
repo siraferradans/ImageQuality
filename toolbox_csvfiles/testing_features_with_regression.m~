@@ -1,0 +1,103 @@
+addpath(genpath('~/Regain/code/'));
+Ni=64;
+
+% Function extract features
+mean_and_std =@(x)[std(x(:)) ; mean(x(:))]; %1.0e+03 * [0.7484    0.7645    2.6320]
+d =2; %dimensions of the extracted features
+feature_function = mean_and_std;
+
+% local averages and local stds
+% disp('Get filters:')
+J=3;L=1;
+[filters_image, ~,~] = generate_translate_wavelets([Ni Ni], J, L, 'image');
+
+%% test local averages
+
+% phi = filters_image{1}.phi{1};
+% flat=@(x)x(:);
+% local_mean_nosubsample=@(x)flat(real(ifft2(fft2(mean(x,3)).*phi)));
+% d=Ni*Ni;
+% feature_function=local_mean_nosubsample;%Mega overfit: 10^4*[0.0000    3.9167    0.2314]
+
+
+% phi = filters_image{1}.phi{1};
+% flat=@(x)x(:);
+% sample=@(x)x(1:2^J:end,1:2^J:end);
+% local_mean=@(x)flat(real(sample(ifft2(fft2(mean(x,3)).*phi))));
+% d=(Ni/2^J)*(Ni/2^J);%Ni*Ni;
+% feature_function=local_mean;%1.0e+03 *[0.6882    0.7863    2.6585]
+
+
+%% Getting local averages+wavelets
+simplefilters.phi = filters_image{1}.phi{1};
+for j=1:J
+    for l=1:L
+        simplefilters.psi{j}{l} = filters_image{1}.psi{1}{j}{l};
+    end
+end
+
+% scattering_o1= @(x)fastscattering2d_order1(mean(x,3), simplefilters);%Mega overfit:10^4*[0.0000    1.7566    0.2467]
+% d=(1+J*L)*(Ni/2^(J-1))*(Ni/2^(J-1));
+% feature_function=scattering_o1;
+
+unlocalize=@(x)mean(reshape(x,[size(x,1)  size(x,2)*size(x,3)]),2);
+scattering_o1_unlocal= @(x)unlocalize(fastscattering2d_order1(mean(x,3), simplefilters));% 0.7487    0.7550    2.6619
+d=(1+J*L);
+feature_function=scattering_o1_unlocal;
+
+
+%%
+num_data = 1000; %num of exemplars
+N_minibatch=num_data;
+
+
+
+testing_featuresloaddata_and_extract_features
+
+%now we have Y and X
+ntrain = round(num_data*2/3);
+ntest = num_data-ntrain;
+
+indx = randperm(length(Y));
+
+Xtrain = X(indx(1:ntrain),:);
+Xtest = X(indx(ntrain+1:ntrain+ntest),:);
+
+Ytrain = Y(indx(1:ntrain));
+Ytest = Y(indx(ntrain+1:ntrain+ntest));
+
+clear X;clear Y; clear indx;
+
+% Prepare data:
+% Xtrain=standarize(Xtrain);
+% Ytrain=Ytrain/100;
+% Ytrain=Ytrain-mean(Ytrain);
+% 
+% Xtest=standarize(Xtest);
+% Ytest=Ytest/100;
+% Ytest = Ytest-mean(Ytest);
+
+
+%% small data set
+[num_data,dims] = size(Xtrain);
+flat=@(x)x(:);
+mean_squared_error=@(Y,X,W)sum(flat(Y-X*W).^2)/length(Y);
+
+%%%% Regression:
+%[atom_ind,orth_basis] = ols(Ytrain(1:N),Xtrain(1:N,:),M,1); %get the dictionary
+%Waux= Xtrain(1:N,atom_ind);
+extXtrain=(cat(2,Xtrain,ones(size(Xtrain,1),1)));
+beta = pinv(extXtrain)*Ytrain;
+
+%now, get the coefficients
+errols=mean_squared_error(Ytrain,extXtrain,beta);
+
+extXtest=cat(2,Xtest,ones(size(Xtest,1),1));
+errtestols=mean_squared_error(Ytest,extXtest,beta);
+
+[errols errtestols mean_squared_error(Ytest,zeros(size(extXtest)),zeros(size(beta)))]
+
+
+
+
+

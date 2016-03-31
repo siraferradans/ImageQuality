@@ -1,0 +1,25 @@
+addpath(genpath('../regression/'));
+% Testing the 
+%load_scats_inmats
+% X is of size [N,d], 
+% Y size [N,1]
+
+
+%% small data set
+num_data = size(X,1);
+flat=@(x)x(:);
+mean_squared_error=@(Y,X,W)sum(flat(Y-X*W).^2)/num_data;
+lambda = 0;
+err=[];
+W=[];
+h=figure;
+for N=2000:1000:size(X,1)
+    W(:,end+1)=ridgeregression(X(1:N,:),Y(1:N),lambda);
+    err(end+1)=mean_squared_error(Y,X,W(:,end));
+    plot(2000:1000:N,err,'r');drawnow;
+end 
+
+
+
+
+
