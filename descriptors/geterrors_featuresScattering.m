@@ -33,11 +33,14 @@ cov_and_mean =@(x)[flat(get_upper_matrix(getcov(x))) ;...
 scat_and_colorinfo=@(x)[flat(scattering_controlled(x)) ; ...
                         flat(cov_and_mean(x))];
 
+
+scat_and_colorinfo_resize=@(x)scat_and_colorinfo(imresize(x, [Ni Ni], 'bilinear'));
+                 
 %d=1+(J-Jinit+1)*L;
 %feature_function=scattering_controlled;
 U = Ni/2^(J-1);              
 d =U^2*(1+(J-Jinit+1)*L)+3+length(upper_matrix_indx); %dimensions of the extracted features
-feature_function = scat_and_colorinfo;
+feature_function = scat_and_colorinfo_resize;
 
 disp('Error with scattering:')
 testing_featuresloaddata_and_extract_features

@@ -2,17 +2,11 @@
 main_folder='~/Regain/';
 addpath(genpath([main_folder 'code/']));
 
-
-flat=@(x)x(:);
 % 
 % Parameters for the scattering and for data loading
 filecsv='challenge_output_data_training_file_predict_the_aesthetic_score_of_a_photograph.csv';
 foldertrain='data_challenge_train_set';
 
-
-%Ni=256;
-%N_minibatch=512;
-%end parameters to define
 
 load('./trainfilenames_and_tags.mat')
 

@@ -1,4 +1,4 @@
-function [err_simple,err_simplehighfreq,err_gram,err_gist]=geterrors_featuresLiterature_and_beyond(Ni,num_data)
+function [err_gist,err_simple,err_simplehighfreq,err_gram]=geterrors_featuresLiterature_and_beyond(Ni,num_data)
 N_minibatch=num_data;
 % Function extract features
 upper_matrix_indx = find(triu(cov(randn(10,3)))~=0);

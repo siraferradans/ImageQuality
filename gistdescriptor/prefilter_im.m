@@ -1,4 +1,4 @@
-function output = prefilt(img, fc, imageSize)
+function output = prefilt(img, fc)
 % ima = prefilt(img, fc);
 % fc  = 4 (default)
 % 
@@ -11,22 +11,6 @@ function output = prefilt(img, fc, imageSize)
 if nargin == 1
     fc = 4; % 4 cycles/image
 end
-
-%%%%% anadido por Sira viene del codigo Gist
- % convert to gray scale
-        img = single(mean(img,3));
-
-        % resize and crop image to make it square
-        img = imresizecrop(img, imageSize, 'bilinear');
-        %img = imresize(img, param.imageSize, 'bilinear'); %jhhays
-
-        % scale intensities to be in the range [0 255]
-        img = img-min(img(:));
-        img = 255*img/max(img(:));
-      
-%%%%%%%%%%
-
-
 w = 5;
 s1 = fc/sqrt(log(2));
 

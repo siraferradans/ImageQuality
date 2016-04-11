@@ -1,6 +1,12 @@
+function [errtrain,errtest,errrandom]=getErrors_LinearRegression(X,Y,num_data)
 
-function [errols,errtestols]getErrors_LinearRegression(num_data,X,Y)
-
+if sum(isnan(X))>0
+        [i,j]=find(isnan(X));
+        X(i,:)=[];
+        Y(i)=[];
+        num_data=min(length(Y),num_data);
+        disp(['change in the amount of data:' num2str(length(Y)) ])
+end
 
 %now we have Y and X
 ntrain = round(num_data*2/3);
@@ -14,7 +20,7 @@ Xtest = X(indx(ntrain+1:ntrain+ntest),:);
 Ytrain = Y(indx(1:ntrain));
 Ytest = Y(indx(ntrain+1:ntrain+ntest));
 
-clear X;clear Y; clear indx;
+%clear X;clear Y; clear indx;
 
 % Prepare data:
 % Xtrain=standarize(Xtrain);
@@ -32,9 +38,13 @@ flat=@(x)x(:);
 mean_squared_error=@(Y,X,W)sum(flat(Y-X*W).^2)/length(Y);
 
 %%%% Regression:
-%[atom_ind,orth_basis] = ols(Ytrain(1:N),Xtrain(1:N,:),M,1); %get the dictionary
+M=num_data/2
+[atom_ind,orth_basis] = ols(Ytrain(1:N),Xtrain(1:N,:),M,1); %get the dictionary
 %Waux= Xtrain(1:N,atom_ind);
 extXtrain=(cat(2,Xtrain,ones(size(Xtrain,1),1)));
+%%
+%lambda = 0.001;
+%beta = ridgeregression(extXtrain,Ytrain,lambda);
 beta = pinv(extXtrain)*Ytrain;
 
 %now, get the coefficients
@@ -42,5 +52,7 @@ errtrain=mean_squared_error(Ytrain,extXtrain,beta);
 
 extXtest=cat(2,Xtest,ones(size(Xtest,1),1));
 errtest=mean_squared_error(Ytest,extXtest,beta);
+errrandom=mean_squared_error(Ytest,zeros(size(extXtest)),zeros(size(beta)));
 
-[errtrain errtest mean_squared_error(Ytest,zeros(size(extXtest)),zeros(size(beta)))]
+
+[errtrain errtest errrandom];

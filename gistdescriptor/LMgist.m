@@ -108,12 +108,12 @@ for n = 1:Nscenes
             disp(D(n).annotation.filename)
             rethrow(lasterror)
         end
-        
-        % convert to gray scale
-        img = single(mean(img,3));
+%%this is inside prefilt now        
+%         % convert to gray scale
+         img = single(mean(img,3));
 
         % resize and crop image to make it square
-        img = imresizecrop(img, param.imageSize, 'bilinear');
+         img = imresizecrop(img, param.imageSize, 'bilinear');
         %img = imresize(img, param.imageSize, 'bilinear'); %jhhays
 
         % scale intensities to be in the range [0 255]

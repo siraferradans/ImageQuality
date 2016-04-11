@@ -1,4 +1,4 @@
-% OLS
+ % OLS
 % Orthogonal least squares
 %
 % Usage:
